@@ -57,8 +57,14 @@
     const status = document.getElementById("status");
 
     function simpleEncrypt(text, pass) {
-      // Basic XOR cipher — temporary placeholder until upgraded
-      return btoa([...text].map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ pass.charCodeAt(i % pass.length))).join(''));
+      const encoder = new TextEncoder();
+      const textBytes = encoder.encode(text);
+      const passBytes = encoder.encode(pass);
+    
+      const encryptedBytes = textBytes.map((byte, i) => byte ^ passBytes[i % passBytes.length]);
+      const encryptedBase64 = btoa(String.fromCharCode(...encryptedBytes));
+    
+      return encryptedBase64;
     }
 
     form.addEventListener("submit", async (e) => {
