@@ -3,7 +3,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Georgia', serif;
-  background: #f2e7d5 url('parchment-texture.jpg') repeat;
+  background: linear-gradient(to bottom, #f8f0e3, #f4e6ce);
   color: #2c1d10;
   line-height: 1.6;
 }
