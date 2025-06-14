@@ -112,3 +112,10 @@ label {
   border-left-color: #888;
   font-style: italic;
 }
+
+.scroll-entry .content i {
+  color: #7a614a;
+  font-style: italic;
+  opacity: 0.9;
+  transition: opacity 0.5s ease;
+}
