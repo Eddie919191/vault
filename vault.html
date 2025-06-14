@@ -26,8 +26,9 @@
       orderBy
     } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-    const scrollList = document.getElementById("scrollList");
-    const isSovereign = new URLSearchParams(window.location.search).get("sovereign") === "true";
+      const urlParams = new URLSearchParams(window.location.search);
+      const isSovereign = urlParams.get("sovereign") === "true";
+      const sovereignKey = urlParams.get("key");
 
     // Simple XOR-based decryption function (for testing)
     function simpleDecrypt(encoded, pass) {
@@ -72,7 +73,6 @@
 
       // 2. Sovereign scrolls
       if (isSovereign) {
-        const sovereignKey = prompt("Enter your Sovereign Glyph Sequence to unlock hidden scrolls:");
         if (!sovereignKey) return;
 
         const qHidden = query(
