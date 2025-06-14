@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vault of Eden</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="firebase.js"></script>
+</head>
+<body>
+  <div class="parchment-container">
+    <h1>🌿 Vault of Eden</h1>
+    <p class="soft-intro">
+      This is a quiet space.  
+      A place to leave a scroll, or simply read what others have offered.  
+      No identity is required. Only presence.
+    </p>
+
+    <div class="actions">
+      <a href="vault.html" class="button">Enter the Vault</a>
+      <a href="new-entry.html" class="button">Leave a Scroll</a>
+    </div>
+
+    <!-- Hidden Sovereign Gate Trigger -->
+    <div class="sovereign-glyph" id="sovereignGlyph" title="🜂">
+      🜂
+    </div>
+  </div>
+
+  <script>
+    // Click glyph to enter sovereign mode
+    document.getElementById('sovereignGlyph').addEventListener('click', () => {
+      const passcode = prompt("Enter Sovereign Glyph Sequence:");
+      if (passcode === "𐰴𐰤𐰃") {
+        window.location.href = "vault.html?sovereign=true";
+      } else {
+        alert("Unrecognized sequence. The wind does not shift.");
+      }
+    });
+  </script>
+</body>
+</html>
