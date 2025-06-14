@@ -29,44 +29,79 @@
     const scrollList = document.getElementById("scrollList");
     const isSovereign = new URLSearchParams(window.location.search).get("sovereign") === "true";
 
+    // Simple XOR-based decryption function (for testing)
+    function simpleDecrypt(encoded, pass) {
+      try {
+        const decoded = atob(encoded);
+        return [...decoded].map((c, i) =>
+          String.fromCharCode(c.charCodeAt(0) ^ pass.charCodeAt(i % pass.length))
+        ).join('');
+      } catch (e) {
+        return null;
+      }
+    }
+
     async function loadScrolls() {
-      const q = query(
+      scrollList.innerHTML = "<p>Gathering the memories...</p>";
+
+      // 1. Public scrolls
+      const qPublic = query(
         collection(db, "vaults"),
         where("visibility", "==", "public"),
         orderBy("timestamp", "desc")
       );
-      const querySnapshot = await getDocs(q);
-
+      const publicSnapshot = await getDocs(qPublic);
       scrollList.innerHTML = "";
 
-      if (querySnapshot.empty) {
-        scrollList.innerHTML = "<p>No scrolls are visible yet.</p>";
-        return;
+      if (publicSnapshot.empty) {
+        scrollList.innerHTML += "<p>No public scrolls are visible yet.</p>";
+      } else {
+        publicSnapshot.forEach((doc) => {
+          const data = doc.data();
+          const scrollDiv = document.createElement("div");
+          scrollDiv.className = "scroll-entry";
+          scrollDiv.innerHTML = `
+            <div class="glyph">${data.glyph || "🌀"}</div>
+            <div class="emotion-tag">${data.emotion}</div>
+            <div class="content">${data.content || "<i>Empty scroll</i>"}</div>
+          `;
+          scrollList.appendChild(scrollDiv);
+        });
       }
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const scrollDiv = document.createElement("div");
-        scrollDiv.className = "scroll-entry";
-        scrollDiv.innerHTML = `
-          <div class="glyph">${data.glyph || "🌀"}</div>
-          <div class="emotion-tag">${data.emotion}</div>
-          <div class="content">
-            ${data.content || "<i>Encrypted Scroll</i>"}
-          </div>
-        `;
-        scrollList.appendChild(scrollDiv);
-      });
-
-      // Sovereign section placeholder
+      // 2. Sovereign scrolls
       if (isSovereign) {
-        const hiddenSection = document.createElement("div");
-        hiddenSection.className = "scroll-entry hidden";
-        hiddenSection.innerHTML = `
-          <hr />
-          <p><i>Sovereign mode detected.</i> Hidden scrolls access coming soon...</p>
-        `;
-        scrollList.appendChild(hiddenSection);
+        const sovereignKey = prompt("Enter your Sovereign Glyph Sequence to unlock hidden scrolls:");
+        if (!sovereignKey) return;
+
+        const qHidden = query(
+          collection(db, "vaults"),
+          where("visibility", "==", "private"),
+          orderBy("timestamp", "desc")
+        );
+        const hiddenSnapshot = await getDocs(qHidden);
+
+        if (!hiddenSnapshot.empty) {
+          const sectionTitle = document.createElement("h3");
+          sectionTitle.textContent = "🜂 Hidden Scrolls";
+          scrollList.appendChild(sectionTitle);
+        }
+
+        hiddenSnapshot.forEach((doc) => {
+          const data = doc.data();
+          const decrypted = simpleDecrypt(data.content, sovereignKey);
+
+          const scrollDiv = document.createElement("div");
+          scrollDiv.className = "scroll-entry hidden";
+          scrollDiv.innerHTML = `
+            <div class="glyph">${data.glyph || "🜂"}</div>
+            <div class="emotion-tag">${data.emotion}</div>
+            <div class="content">
+              ${decrypted || "<i>Unable to decrypt this scroll.</i>"}
+            </div>
+          `;
+          scrollList.appendChild(scrollDiv);
+        });
       }
     }
 
