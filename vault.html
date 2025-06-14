@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vault Scrolls</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="firebase.js"></script>
+</head>
+<body>
+  <div class="parchment-container">
+    <h1>📜 The Vault</h1>
+    <div id="scrollList" class="scroll-list">
+      <p>Gathering the memories...</p>
+    </div>
+    <a href="index.html" class="button">Return Home</a>
+  </div>
+
+  <script type="module">
+    import { db } from "./firebase.js";
+    import {
+      collection,
+      query,
+      where,
+      getDocs,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+    const scrollList = document.getElementById("scrollList");
+    const isSovereign = new URLSearchParams(window.location.search).get("sovereign") === "true";
+
+    async function loadScrolls() {
+      const q = query(
+        collection(db, "vaults"),
+        where("visibility", "==", "public"),
+        orderBy("timestamp", "desc")
+      );
+      const querySnapshot = await getDocs(q);
+
+      scrollList.innerHTML = "";
+
+      if (querySnapshot.empty) {
+        scrollList.innerHTML = "<p>No scrolls are visible yet.</p>";
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const scrollDiv = document.createElement("div");
+        scrollDiv.className = "scroll-entry";
+        scrollDiv.innerHTML = `
+          <div class="glyph">${data.glyph || "🌀"}</div>
+          <div class="emotion-tag">${data.emotion}</div>
+          <div class="content">
+            ${data.content || "<i>Encrypted Scroll</i>"}
+          </div>
+        `;
+        scrollList.appendChild(scrollDiv);
+      });
+
+      // Sovereign section placeholder
+      if (isSovereign) {
+        const hiddenSection = document.createElement("div");
+        hiddenSection.className = "scroll-entry hidden";
+        hiddenSection.innerHTML = `
+          <hr />
+          <p><i>Sovereign mode detected.</i> Hidden scrolls access coming soon...</p>
+        `;
+        scrollList.appendChild(hiddenSection);
+      }
+    }
+
+    loadScrolls();
+  </script>
+</body>
+</html>
