@@ -31,10 +31,10 @@
     // Click glyph to enter sovereign mode
     document.getElementById('sovereignGlyph').addEventListener('click', () => {
       const passcode = prompt("Enter Sovereign Glyph Sequence:");
-      if (passcode === "𐰴𐰤𐰃") {
-        window.location.href = "vault.html?sovereign=true";
-      } else {
-        alert("Unrecognized sequence. The wind does not shift.");
+      if (passcode) {
+        // Redirect with entered passphrase as part of query (URL-safe encoding)
+        const encoded = encodeURIComponent(passcode);
+        window.location.href = `vault.html?sovereign=true&key=${encoded}`;
       }
     });
   </script>
