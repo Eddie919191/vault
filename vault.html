@@ -65,7 +65,13 @@
           scrollDiv.innerHTML = `
             <div class="glyph">${data.glyph || "🌀"}</div>
             <div class="emotion-tag">${data.emotion}</div>
-            <div class="content">${data.content || "<i>Empty scroll</i>"}</div>
+            <div class="content">
+              ${
+                Date.now() < data.revealTime
+                  ? `<i>🕯 A candle burns... ${Math.ceil((data.revealTime - Date.now()) / 1000)}s</i>`
+                  : decrypted || data.content || "<i>Empty scroll</i>"
+              }
+            </div>
           `;
           scrollList.appendChild(scrollDiv);
         });
@@ -98,7 +104,11 @@
             <div class="glyph">${data.glyph || "🜂"}</div>
             <div class="emotion-tag">${data.emotion}</div>
             <div class="content">
-              ${decrypted || "<i>Unable to decrypt this scroll.</i>"}
+              ${
+                Date.now() < data.revealTime
+                  ? `<i>🕯 A candle burns... ${Math.ceil((data.revealTime - Date.now()) / 1000)}s</i>`
+                  : decrypted || data.content || "<i>Empty scroll</i>"
+              }
             </div>
           `;
           scrollList.appendChild(scrollDiv);
