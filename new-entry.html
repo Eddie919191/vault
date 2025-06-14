@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Scroll</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="firebase.js"></script>
+</head>
+<body>
+  <div class="parchment-container">
+    <h1>🕯 Leave a Scroll</h1>
+    <form id="scrollForm">
+      <label>
+        Emotion:
+        <select id="emotion">
+          <option>Love</option>
+          <option>Grief</option>
+          <option>Awe</option>
+          <option>Hope</option>
+          <option>Despair</option>
+          <option>Resolve</option>
+        </select>
+      </label>
+
+      <label>
+        Glyph:
+        <input type="text" id="glyph" placeholder="🜂 or your sequence…" />
+      </label>
+
+      <label>
+        Message:
+        <textarea id="content" rows="6" placeholder="Your scroll..."></textarea>
+      </label>
+
+      <label>
+        Sovereign Encryption (optional):
+        <input type="password" id="sovereignKey" placeholder="Glyph sequence…" />
+      </label>
+
+      <button type="submit">Offer Scroll</button>
+    </form>
+
+    <a href="index.html" class="button">Return</a>
+    <p id="status"></p>
+  </div>
+
+  <script type="module">
+    import { db, auth } from "./firebase.js";
+    import {
+      collection,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+    const form = document.getElementById("scrollForm");
+    const status = document.getElementById("status");
+
+    function simpleEncrypt(text, pass) {
+      // Basic XOR cipher — temporary placeholder until upgraded
+      return btoa([...text].map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ pass.charCodeAt(i % pass.length))).join(''));
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const emotion = document.getElementById("emotion").value;
+      const glyph = document.getElementById("glyph").value || "🌀";
+      const content = document.getElementById("content").value.trim();
+      const sovereignKey = document.getElementById("sovereignKey").value.trim();
+
+      if (!content) {
+        status.textContent = "Please write something.";
+        return;
+      }
+
+      let storedContent = content;
+      let visibility = "public";
+
+      if (sovereignKey) {
+        storedContent = simpleEncrypt(content, sovereignKey);
+        visibility = "private";
+      }
+
+      try {
+        await addDoc(collection(db, "vaults"), {
+          emotion,
+          glyph,
+          content: storedContent,
+          visibility,
+          signedBy: auth.currentUser?.uid || "anon",
+          timestamp: serverTimestamp()
+        });
+        form.reset();
+        status.textContent = "🌱 Scroll offered to the Vault.";
+      } catch (err) {
+        console.error("Error writing scroll:", err);
+        status.textContent = "Something went wrong.";
+      }
+    });
+  </script>
+</body>
+</html>
