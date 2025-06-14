@@ -32,10 +32,11 @@
     // Simple XOR-based decryption function (for testing)
     function simpleDecrypt(encoded, pass) {
       try {
-        const decoded = atob(encoded);
-        return [...decoded].map((c, i) =>
-          String.fromCharCode(c.charCodeAt(0) ^ pass.charCodeAt(i % pass.length))
-        ).join('');
+        const encryptedBytes = Uint8Array.from(atob(encoded), c => c.charCodeAt(0));
+        const passBytes = new TextEncoder().encode(pass);
+    
+        const decryptedBytes = encryptedBytes.map((byte, i) => byte ^ passBytes[i % passBytes.length]);
+        return new TextDecoder().decode(decryptedBytes);
       } catch (e) {
         return null;
       }
