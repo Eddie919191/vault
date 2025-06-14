@@ -38,6 +38,13 @@
         <input type="password" id="sovereignKey" placeholder="Glyph sequence…" />
       </label>
 
+      <!-- Optional: Allow user to choose candle delay in minutes
+      <label>
+        Reveal delay (minutes):
+        <input type="number" id="delay" min="0" value="5" />
+      </label>
+      -->
+
       <button type="submit">Offer Scroll</button>
     </form>
 
@@ -74,6 +81,10 @@
       const content = document.getElementById("content").value.trim();
       const sovereignKey = document.getElementById("sovereignKey").value.trim();
 
+      // Optional reveal delay logic
+      const delayMs = 5 * 60 * 1000; // 5 minutes default
+      const revealTime = Date.now() + delayMs;
+
       if (!content) {
         status.textContent = "Please write something.";
         return;
@@ -93,6 +104,7 @@
           glyph,
           content: storedContent,
           visibility,
+          revealTime,
           signedBy: auth.currentUser?.uid || "anon",
           timestamp: serverTimestamp()
         });
